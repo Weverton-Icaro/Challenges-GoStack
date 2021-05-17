@@ -1,25 +1,37 @@
 import { getCustomRepository, getRepository } from 'typeorm';
+
 import AppError from '../errors/AppError';
+
 import Category from '../models/Category';
+
 // import AppError from '../errors/AppError';
 
 import Transaction from '../models/Transaction';
+
 import TransactionsRepository from '../repositories/TransactionsRepository';
 
 interface Request {
   title: string;
+
   value: number;
+
   type: 'income' | 'outcome';
+
   category: string;
 }
+
 class CreateTransactionService {
   public async execute({
     title,
+
     value,
+
     type,
+
     category,
   }: Request): Promise<Transaction> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
+
     const categoryRepository = getRepository(Category);
 
     const { total } = await transactionsRepository.getBalance();
@@ -29,6 +41,7 @@ class CreateTransactionService {
     }
 
     // Validando se a category existe
+
     let transactionCategory = await categoryRepository.findOne({
       where: {
         title: category,
@@ -36,6 +49,7 @@ class CreateTransactionService {
     });
 
     // Se category não existe, criar uma
+
     if (!transactionCategory) {
       transactionCategory = categoryRepository.create({
         title: category,
@@ -46,8 +60,11 @@ class CreateTransactionService {
 
     const transaction = transactionsRepository.create({
       title,
+
       value,
+
       type,
+
       category: transactionCategory,
     });
 
